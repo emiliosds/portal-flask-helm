@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-portal-flask-deployment
+spec:
+  template:
+    metadata:
+      name: {{ .Release.Name }}-portal-flask
+      labels:
+        app: {{ .Release.Name }}-portal-flask
+    spec:
+      containers:
+        - name: {{ .Release.Name }}-portal-flask-container
+          image: {{ required "O registry name é obrigatório" .Values.deployment.containerImage.registryName }}/{{ required "O nome da imagem é obrigatório." .Values.deployment.containerImage.imageName }}:{{ required "A tag obrigatória." .Values.deployment.containerImage.tag }}
+          ports:
+            - containerPort: 5000
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-portal-flask-configmap
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            periodSeconds: 10
+            failureThreshold: 3
+            initialDelaySeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            periodSeconds: 10
+            failureThreshold: 5
+            initialDelaySeconds: 3
+          resources:
+            requests:
+              cpu: {{ .Values.deployment.cpuRequest }}
+  replicas: 2
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-portal-flask

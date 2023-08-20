@@ -1,0 +1,13 @@
+deployment:
+  containerImage:
+    registryName: emiliosds
+    imageName: portal-flask
+    tag: main
+  cpuRequest: 500m
+configmap:
+  portalImage: 2
+service:
+  port: 5000
+ingress:
+  enabled: true
+  hosts: ["127.0.0.1.nip.io"]
